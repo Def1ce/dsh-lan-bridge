@@ -1,0 +1,39 @@
+{
+  "name": "dsh-lan-bridge",
+  "version": "0.1.0",
+  "description": "Serve the DeepSeek Harness web GUI (or any local web app) on the LAN: injects a crypto.randomUUID polyfill so the UI works over plain HTTP from phones — no certs, no HTTPS, no public tunnels. One command, zero dependencies.",
+  "type": "commonjs",
+  "main": "bin/dsh-bridge.js",
+  "bin": {
+    "dsh-lan-bridge": "bin/dsh-bridge.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node bin/dsh-bridge.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek",
+    "harness",
+    "lan",
+    "proxy",
+    "reverse-proxy",
+    "randomuuid",
+    "polyfill",
+    "mobile",
+    "ipad",
+    "obs"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Def1ce/dsh-lan-bridge.git"
+  }
+}

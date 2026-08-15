@@ -1,0 +1,6 @@
+node_modules/
+*.pfx
+*.pem
+data/
+npm-debug.log*
+.DS_Store
