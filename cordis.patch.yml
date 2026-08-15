@@ -1,5 +1,21 @@
 # dsh bundle layer: mount the dsh-lan-bridge plugin (dsh/index.js via the
 # package root export; bin stays the standalone CLI proxy).
+#
+# The webserver override below makes LAN access work out of the box: the
+# harness binds 127.0.0.1 by default, so a phone on the same network cannot
+# reach it. Binding 0.0.0.0 (all interfaces) plus the polyfill injected by
+# the plugin row is what makes the phone flow work. With an all-interfaces
+# bind, the web runtime auto-derives the LAN IP literals for the /api trust
+# fence, so no trustedHosts entry is needed. `--port` flags still win via
+# the webStartup expression.
+# SECURITY: the harness web UI has NO authentication; binding 0.0.0.0 exposes
+# it to the whole LAN. Only install on a trusted network.
+
 - insert:
     - id: dsh-lan-bridge
       name: 'dsh-lan-bridge'
+
+- id: webserver
+  config:
+    host: 0.0.0.0
+    port: !!js ctx.webStartup.port ?? 3080
