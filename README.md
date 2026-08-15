@@ -1,8 +1,10 @@
 # dsh-lan-bridge
 
-A LAN bridge for the [DeepSeek Harness](https://github.com/deepseek-ai/dsh) web GUI (and any other local web app). One command, **zero dependencies**.
+Fixes the DeepSeek Harness web UI on phones: injects a [`crypto.randomUUID`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID) polyfill so the harness works over **plain HTTP** — no certs, no warnings, no public tunnels, works on old iOS too. **Zero dependencies.**
 
-It injects a [`crypto.randomUUID`](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID) polyfill into the served HTML, so the harness UI works over **plain HTTP** on your phone — **no certificates, no warnings, no public tunnels**, works on old iOS too.
+Two ways to use it:
+- **dsh plugin** (recommended): install into the harness, the polyfill is served by dsh itself — the phone opens dsh's own port directly, no extra process.
+- **Standalone proxy** (`bin/dsh-bridge.cjs`): proxy any local web app on the LAN with the polyfill.
 
 | 简体中文 | English |
 | --- | --- |
@@ -31,7 +33,7 @@ crypto.randomUUID is not a function. (In 'crypto.randomUUID()', 'crypto.randomUU
 
 ### 解决办法
 
-`crypto.getRandomValues()` 是**所有浏览器、所有环境**（包括 http、老 iOS）都有的 API。本项目在代理的页面里注入一段**极小的 polyfill**，用 `getRandomValues` 实现 `randomUUID`：
+`crypto.getRandomValues()` 是**所有浏览器、所有环境**（包括 http、老 iOS）都有的 API。本项目在 dsh 返回的页面里注入一段**极小的 polyfill**，用 `getRandomValues` 实现 `randomUUID`：
 
 ```js
 if (typeof crypto === 'object' && crypto && !crypto.randomUUID && crypto.getRandomValues) {
@@ -41,15 +43,26 @@ if (typeof crypto === 'object' && crypto && !crypto.randomUUID && crypto.getRand
 
 于是**纯 HTTP 就能完整使用 dsh**：零证书、零警告、任何浏览器、任何 iOS 版本。
 
-### 安装与使用
+### 方式一：作为 dsh 插件安装（推荐）
+
+包内 `dsh/index.js` 是一个 dsh bundle 插件：它通过 `webServer.tapIndex` 把 polyfill 注入 dsh 自己返回的 index.html。装进 harness 后**不需要任何额外进程**，手机直接访问 dsh 端口即可。
 
 ```bash
-# 本地直接运行（无需安装，dsh 默认在 127.0.0.1:3080）
-npx dsh-lan-bridge
+# 安装（发布后可用包名；本地开发用目录路径）
+dsh plugin --profile web add dsh-lan-bridge
+# 或本地：dsh plugin --profile web add /path/to/dsh-lan-bridge
 
-# 或安装后使用
-npm install -g dsh-lan-bridge
-dsh-lan-bridge
+# 重启 dsh 后生效，手机（同一 WiFi）打开：
+#   http://<电脑局域网IP>:3080
+```
+
+### 方式二：独立 CLI 代理（适用于任何本地 Web 应用）
+
+```bash
+# 本地直接运行（无需安装，默认代理 127.0.0.1:3080）
+node bin/dsh-bridge.cjs
+# 或安装后
+npm install -g dsh-lan-bridge && dsh-lan-bridge
 
 # 自定义参数
 dsh-lan-bridge --backend http://127.0.0.1:3080 --http-port 8088
@@ -65,11 +78,11 @@ http://<电脑局域网IP>:8088
 
 > 获取电脑局域网 IP：Windows 运行 `ipconfig`，找"IPv4 地址"。
 
-### 桌面一键启动（Windows）
+### 一键启动（Windows，CLI 方式）
 
-见仓库根目录的 [`start.bat`](start.bat) —— 双击即可启动 dsh-lan-bridge（dsh 需先在 3080 端口运行）。
+解压后双击根目录 [`start.bat`](start.bat)（会自动定位到自身目录，从任何位置双击都不会报"找不到路径"）。dsh 需先在 3080 端口运行。
 
-### 参数
+### CLI 参数
 
 | 参数 | 说明 | 默认 |
 | --- | --- | --- |
@@ -108,30 +121,34 @@ So phones are stuck: `http` breaks the app, `https` breaks the page.
 
 ### The fix
 
-`crypto.getRandomValues()` exists **everywhere** (http, old iOS, every browser). This project injects a tiny polyfill that implements `randomUUID` on top of it, so the UI works over **plain HTTP** — zero certificates, zero warnings, any browser, any iOS.
+`crypto.getRandomValues()` exists **everywhere** (http, old iOS, every browser). This project injects a tiny polyfill that implements `randomUUID` on top of it, so the UI works over **plain HTTP**.
 
-### Usage
+### Way 1: install as a dsh plugin (recommended)
+
+`dsh/index.js` is a dsh bundle plugin that uses `webServer.tapIndex` to inject the polyfill into the harness's own index.html — no extra process, the phone opens dsh's own port.
 
 ```bash
-npx dsh-lan-bridge                        # dsh default backend :3080
+dsh plugin --profile web add dsh-lan-bridge     # or: add /path/to/dsh-lan-bridge
+# restart dsh, then on a phone on the same Wi-Fi:
+#   http://<your-lan-ip>:3080
+```
+
+### Way 2: standalone CLI proxy (any local web app)
+
+```bash
+node bin/dsh-bridge.cjs                          # default backend :3080
 # or
 npm install -g dsh-lan-bridge && dsh-lan-bridge
 dsh-lan-bridge --backend http://127.0.0.1:3080 --http-port 8088
 ```
 
-Then, on a phone on the same Wi-Fi, open:
+Then on a phone on the same Wi-Fi open `http://<your-lan-ip>:8088` — no setup at all. WebSocket streams are forwarded automatically. Find your LAN IP with `ipconfig` / `ip addr`.
 
-```
-http://<your-lan-ip>:8088
-```
-
-No setup at all. WebSocket streams are forwarded automatically.
-
-Find your LAN IP with `ipconfig` (Windows) / `ip addr` (Linux) / System Settings (macOS).
+On Windows, double-click `start.bat` for the CLI mode (dsh must already be running on 3080).
 
 ### Security note
 
-The harness UI has **no authentication**. Use this only on a trusted LAN, and do not expose the LAN port to the public internet (no auth means full control).
+The harness UI has **no authentication**. Use this only on a trusted LAN, and do not expose the LAN port to the public internet.
 
 ### License
 
