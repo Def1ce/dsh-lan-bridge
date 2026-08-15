@@ -3,6 +3,7 @@ REM dsh-lan-bridge launcher (Windows)
 REM Starts/checks the bridge. dsh itself must already be running on port 3080
 REM (the bridge is a proxy, it does not start dsh).
 title dsh-lan-bridge launcher
+cd /d "%~dp0.."
 
 echo ============================================
 echo    dsh-lan-bridge launcher
@@ -23,7 +24,7 @@ if %errorlevel%==0 (
   echo [OK]  bridge is running on port 8088
 ) else (
   echo [RUN] starting bridge ...
-  start "dsh-lan-bridge" /min node "%~dp0..\bin\dsh-bridge.js"
+  start "dsh-lan-bridge" /min node bin\dsh-bridge.js
   timeout /t 4 /nobreak >nul
   netstat -ano | findstr ":8088" | findstr "LISTENING" >nul 2>&1
   if %errorlevel%==0 (echo [OK]  bridge started) else (echo [FAIL] bridge did not start - is node on PATH?)
