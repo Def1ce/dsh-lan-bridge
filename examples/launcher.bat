@@ -1,42 +1,39 @@
 @echo off
 REM dsh-lan-bridge launcher (Windows)
-REM Double-click to start/check: dsh and the bridge. LAN only, no certs.
+REM Starts/checks the bridge. dsh itself must already be running on port 3080
+REM (the bridge is a proxy, it does not start dsh).
 title dsh-lan-bridge launcher
 
-REM Point these at your actual paths.
-set NODE=C:\nvm4w\nodejs\node.exe
-set DSH=node_modules\.bin\dsh.cmd
-set BRIDGE=dsh-lan-bridge
-
 echo ============================================
-echo    dsh-lan-bridge one-click launcher
+echo    dsh-lan-bridge launcher
 echo ============================================
 
-REM 1. dsh backend (port 3080)
+REM 1. dsh backend must be up on 3080
 netstat -ano | findstr ":3080" | findstr "LISTENING" >nul 2>&1
 if %errorlevel%==0 (
-  echo [OK]  dsh is running (3080)
+  echo [OK]  dsh is running on port 3080
 ) else (
-  echo [RUN] starting dsh ...
-  start "dsh" /min cmd /c ""%DSH%" --profile web"
-  timeout /t 10 /nobreak >nul
+  echo [WARN] dsh is NOT running on port 3080.
+  echo        Start dsh first, then run this launcher again.
 )
 
-REM 2. dsh-lan-bridge (http :8088)
+REM 2. bridge (http :8088)
 netstat -ano | findstr ":8088" | findstr "LISTENING" >nul 2>&1
 if %errorlevel%==0 (
-  echo [OK]  dsh-lan-bridge is running (8088)
+  echo [OK]  bridge is running on port 8088
 ) else (
-  echo [RUN] starting dsh-lan-bridge ...
-  start "dsh-lan-bridge" /min "%NODE%" "%BRIDGE%"
-  timeout /t 5 /nobreak >nul
+  echo [RUN] starting bridge ...
+  start "dsh-lan-bridge" /min node "%~dp0..\bin\dsh-bridge.js"
+  timeout /t 4 /nobreak >nul
+  netstat -ano | findstr ":8088" | findstr "LISTENING" >nul 2>&1
+  if %errorlevel%==0 (echo [OK]  bridge started) else (echo [FAIL] bridge did not start - is node on PATH?)
 )
 
 echo.
 echo ============================================
 echo   Phone URL - same Wi-Fi, no cert needed:
-echo   http://192.168.1.100:8088
+echo   http://<your-lan-ip>:8088
 echo ============================================
-echo   Replace 192.168.1.100 with this machine's LAN IP (ipconfig).
+echo   Replace <your-lan-ip> with this machine's LAN IP (ipconfig).
 echo.
 pause
