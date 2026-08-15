@@ -1,6 +1,6 @@
 {
   "name": "dsh-lan-bridge",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "DeepSeek Harness plugin + LAN bridge: injects a crypto.randomUUID polyfill so the harness web UI works over plain HTTP from phones (no certs, no public tunnels, works on old iOS). Install as a dsh plugin, or run the standalone proxy via the CLI.",
   "type": "module",
   "main": "dsh/index.js",
