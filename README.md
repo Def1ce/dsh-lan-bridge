@@ -48,13 +48,16 @@ if (typeof crypto === 'object' && crypto && !crypto.randomUUID && crypto.getRand
 包内 `dsh/index.js` 是一个 dsh bundle 插件：它通过 `webServer.tapIndex` 把 polyfill 注入 dsh 自己返回的 index.html。装进 harness 后**不需要任何额外进程**，手机直接访问 dsh 端口即可。
 
 ```bash
-# 安装（发布后可用包名；本地开发用目录路径）
-dsh plugin --profile web add dsh-lan-bridge
-# 或本地：dsh plugin --profile web add /path/to/dsh-lan-bridge
+# 安装（0.2.1 起自动把 dsh 绑到 0.0.0.0，手机可直接访问）
+# 注意：刚发布的版本有 pnpm 24 小时闸门，请用带版本号的命令：
+dsh plugin --profile web add dsh-lan-bridge@0.2.1
+# 24 小时后可简写为：dsh plugin --profile web add dsh-lan-bridge
 
 # 重启 dsh 后生效，手机（同一 WiFi）打开：
 #   http://<电脑局域网IP>:3080
 ```
+
+> `0.2.1` 起插件的 bundle patch 会把 dsh webserver 自动绑到 `0.0.0.0`（所有网卡），局域网 IP 由 dsh 自动加入 `/api` 信任名单——装完即可用，无需手动改配置。⚠️ dsh 界面无登录认证，请只在可信局域网使用。
 
 ### 方式二：独立 CLI 代理（适用于任何本地 Web 应用）
 
