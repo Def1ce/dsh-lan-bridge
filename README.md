@@ -67,7 +67,7 @@ http://<电脑局域网IP>:8088
 
 ### 桌面一键启动（Windows）
 
-见 [`examples/launcher.bat`](examples/launcher.bat) —— 双击即可检查/启动 dsh 与 dsh-lan-bridge。
+见仓库根目录的 [`start.bat`](start.bat) —— 双击即可启动 dsh-lan-bridge（dsh 需先在 3080 端口运行）。
 
 ### 参数
 
