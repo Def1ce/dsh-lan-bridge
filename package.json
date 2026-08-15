@@ -1,27 +1,39 @@
 {
   "name": "dsh-lan-bridge",
-  "version": "0.1.0",
-  "description": "Serve the DeepSeek Harness web GUI (or any local web app) on the LAN: injects a crypto.randomUUID polyfill so the UI works over plain HTTP from phones — no certs, no HTTPS, no public tunnels. One command, zero dependencies.",
-  "type": "commonjs",
-  "main": "bin/dsh-bridge.js",
+  "version": "0.2.0",
+  "description": "DeepSeek Harness plugin + LAN bridge: injects a crypto.randomUUID polyfill so the harness web UI works over plain HTTP from phones (no certs, no public tunnels, works on old iOS). Install as a dsh plugin, or run the standalone proxy via the CLI.",
+  "type": "module",
+  "main": "dsh/index.js",
+  "exports": {
+    ".": "./dsh/index.js",
+    "./package.json": "./package.json"
+  },
   "bin": {
-    "dsh-lan-bridge": "bin/dsh-bridge.js"
+    "dsh-lan-bridge": "bin/dsh-bridge.cjs"
   },
   "files": [
     "bin",
+    "dsh",
+    "cordis.patch.yml",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "start": "node bin/dsh-bridge.js"
+    "start": "node bin/dsh-bridge.cjs"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
   },
   "keywords": [
     "dsh",
     "deepseek",
     "harness",
+    "plugin",
     "lan",
     "proxy",
     "reverse-proxy",
