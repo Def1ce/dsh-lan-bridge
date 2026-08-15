@@ -1,0 +1,5 @@
+# dsh bundle layer: mount the dsh-lan-bridge plugin (dsh/index.js via the
+# package root export; bin stays the standalone CLI proxy).
+- insert:
+    - id: dsh-lan-bridge
+      name: 'dsh-lan-bridge'
